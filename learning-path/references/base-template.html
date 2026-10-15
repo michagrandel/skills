@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<!--
+  BASE TEMPLATE for plan-feature skill output.
+  Use this CSS and JS VERBATIM. Replace the <main> placeholder content with the
+  document structure required by SKILL.md (hero, sections A/B/C, estimate).
+  Every diagram block must follow the .diagram pattern shown below (rendered
+  .mermaid pre + .btnbar with .dl-btn/.mm-btn + <details> with pre.mm-src).
+  Every code block must be wrapped in .codeblock with a .copy-btn button.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feature Plan — <!-- FEATURE NAME --></title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --bg-code: #0a0e14;
+    --border: #30363d;
+    --fg: #e6edf3;
+    --fg-dim: #9da7b3;
+    --accent: #58a6ff;
+    --accent-soft: rgba(88, 166, 255, .15);
+    --green: #3fb950;
+    --red: #c0392b;
+    --amber: #d29922;
+    --reco: #d2a8ff;
+    --reco-soft: rgba(210, 168, 255, .12);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.65;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    max-width: 1100px;
+    margin: 0 auto;
+    gap: 2.5rem;
+    padding: 2rem 1.5rem;
+  }
+  /* ---------- Sticky TOC ---------- */
+  nav.toc {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+    font-size: .85rem;
+    border-left: 2px solid var(--border);
+    padding-left: 1rem;
+  }
+  nav.toc .toc-title { font-weight: 700; color: var(--fg); font-size: .95rem; line-height: 1.35; margin: 0 0 1rem; }
+  nav.toc h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: var(--fg-dim); margin: 0 0 .75rem; }
+  nav.toc a { display: block; color: var(--fg-dim); text-decoration: none; padding: .3rem 0; }
+  nav.toc a:hover { color: var(--accent); }
+  /* ---------- Hero ---------- */
+  .hero {
+    background: linear-gradient(135deg, var(--accent-soft), transparent 60%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .hero .kicker { color: var(--accent); font-size: .8rem; text-transform: uppercase; letter-spacing: .15em; margin: 0 0 .5rem; }
+  .hero h1 { font-size: 1.9rem; line-height: 1.3; margin: 0; color: #fff; }
+  .hero .hero-sub { color: var(--accent); font-size: 1.05rem; line-height: 1.5; margin: .7rem 0 0; }
+  /* ---------- Sections ---------- */
+  section { margin-bottom: 3.5rem; scroll-margin-top: 1.5rem; }
+  h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+  h3 { font-size: 1.05rem; color: var(--accent); margin-top: 2rem; }
+  a { color: var(--accent); }
+  /* ---------- Cards ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.4rem;
+  }
+  .card h4 { margin: 0 0 .25rem; font-size: 1rem; }
+  .card .sub { color: var(--fg-dim); font-size: .8rem; margin: 0 0 .75rem; }
+  .card ul { margin: .5rem 0 0; padding-left: 1.1rem; }
+  .card li { margin-bottom: .3rem; font-size: .9rem; }
+  .step-num {
+    display: inline-block; background: var(--accent); color: #04101f;
+    font-weight: 700; border-radius: 6px; padding: .1rem .55rem; margin-right: .5rem;
+  }
+  /* ---------- Pro/Con ---------- */
+  .procon { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .pro, .con { border-radius: 10px; padding: 1rem 1.2rem; font-size: .9rem; }
+  .pro { background: rgba(63,185,80,.08); border: 1px solid rgba(63,185,80,.35); }
+  .con { background: rgba(192,57,43,.10); border: 1px solid rgba(192,57,43,.45); }
+  .pro h5 { color: var(--green); margin: 0 0 .5rem; }
+  .con h5 { color: var(--red); margin: 0 0 .5rem; }
+  /* ---------- Code ---------- */
+  .codeblock { position: relative; margin: 1.25rem 0; }
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    font-size: .85rem;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    margin: 0;
+  }
+  .tok-kw { color: #ff7b72; }
+  .tok-str { color: #a5d6ff; }
+  .tok-fn { color: #d2a8ff; }
+  .tok-cm { color: #8b949e; font-style: italic; }
+  .tok-num { color: #79c0ff; }
+  .srclabel { font-size: .75rem; color: var(--amber); margin-top: .35rem; display: block; }
+  /* ---------- Diagrams ---------- */
+  .diagram {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+  }
+  .diagram .mermaid { display: flex; justify-content: center; }
+  .diagram details { margin-top: 1rem; font-size: .85rem; }
+  .diagram summary { cursor: pointer; color: var(--fg-dim); }
+  .diagram summary:hover { color: var(--accent); }
+  /* ---------- Buttons ---------- */
+  .btnbar { display: flex; gap: .5rem; justify-content: flex-end; margin-top: .75rem; }
+  .copy-btn {
+    position: absolute; top: .5rem; right: .5rem;
+  }
+  button.btn {
+    background: var(--bg-card);
+    color: var(--fg-dim);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .3rem .7rem;
+    font-size: .75rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.btn:hover { color: var(--accent); border-color: var(--accent); }
+  button.btn.ok { color: var(--green); border-color: var(--green); }
+  /* ---------- Tags & tables ---------- */
+  .tag {
+    display: inline-block; font-size: .75rem; border-radius: 5px;
+    padding: .1rem .5rem; margin: 0 .25rem .25rem 0;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .tag.warn { background: rgba(210,153,34,.15); color: var(--amber); }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 1rem 0; }
+  th, td { text-align: left; padding: .6rem .8rem; border-bottom: 1px solid var(--border); }
+  th { color: var(--fg-dim); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+  td.buf { color: var(--amber); font-weight: 600; }
+  tr.phase td { font-weight: 600; }
+  td.sub { padding-left: 2.2rem; color: var(--fg-dim); font-weight: 400; }
+  td details summary { cursor: pointer; }
+  td details summary:hover { color: var(--fg); }
+  td .jira { margin: .4rem 0 .3rem; font-size: .85rem; line-height: 1.5; }
+  td .jira p { margin: .3rem 0; }
+  td .jira strong { color: var(--fg); }
+  td .jira .btnbar { margin-top: .6rem; }
+  td:has(> details) { position: relative; }
+  table:has(td details) { table-layout: fixed; }
+  table:has(td details) td { vertical-align: top; }
+  table:has(td details) tr:has(td details):hover { background: rgba(255,255,255,.035); }
+  table:has(td details) th:nth-child(2), table:has(td details) th:nth-child(3) { width: 7.5rem; }
+  td:has(> details) > .btnbar { float: right; margin: 0 0 .3rem .75rem; }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: .8rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1.25rem 0;
+  }
+  /* ---------- Recommendation block ---------- */
+  .reco {
+    border-left: 3px solid var(--reco);
+    background: var(--reco-soft);
+    padding: .8rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1.25rem 0;
+  }
+  .reco h5 { color: var(--reco); margin: 0 0 .35rem; text-transform: uppercase; letter-spacing: .08em; font-size: .85rem; }
+  .reco .reco-title { color: #fff; font-weight: 700; text-transform: uppercase; font-size: 1.05rem; margin: 0 0 .5rem; }
+  .reco p { margin: 0; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { position: static; border-left: none; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="toc">
+    <p class="toc-title"><!-- FEATURE NAME --></p>
+    <h2>Contents</h2>
+    <a href="#opening">0. Core Idea &amp; Requirements</a>
+    <a href="#section-a">A. Requirements Description</a>
+    <a href="#section-b">B. Concept &amp; Alternatives</a>
+    <a href="#section-c">C. Implementation Details</a>
+    <a href="#estimate">Closing: Time Estimate</a>
+  </nav>
+
+  <main>
+    <!--
+      CONTENT GOES HERE. Required patterns:
+
+      Hero (opening): kicker = "Feature Plan", h1 = FEATURE NAME (big, white),
+      core-idea sentence = sub-headline:
+        <div class="hero"><p class="kicker">Feature Plan</p>
+        <h1>FEATURE NAME</h1>
+        <p class="hero-sub">CORE IDEA sentence</p></div>
+
+      Persona / alternative / step card:
+        <div class="cards"><div class="card"><h4>EMOJI Name — Role</h4>
+        <p class="sub">goals · pain · skill</p><ul><li>...</li></ul></div></div>
+
+      Pro/contra:
+        <div class="procon"><div class="pro"><h5>...</h5><ul>...</ul></div>
+        <div class="con"><h5>...</h5><ul>...</ul></div></div>
+
+      Recommendation block:
+        <div class="reco"><h5>Recommendation</h5>
+        <p class="reco-title">CHOSEN SOLUTION TITLE (white, uppercase, no "(proposed solution)")</p>
+        <p>reasoning</p></div>
+
+      Code block (ALWAYS this wrapper, button included):
+        <div class="codeblock"><button class="btn copy-btn">⧉ Copy</button><pre>...code...</pre></div>
+
+      Diagram (ALWAYS this wrapper, both buttons + editable source included):
+        <div class="diagram">
+          <pre class="mermaid">...mermaid code...</pre>
+          <div class="btnbar">
+            <button class="btn dl-btn">⬇ Download PNG</button>
+            <button class="btn mm-btn">⧉ Copy Mermaid</button>
+          </div>
+          <details><summary>Mermaid source (editable)</summary>
+            <pre class="mm-src">...same mermaid code...</pre>
+          </details>
+        </div>
+
+      Assumption / open question tags:
+        <span class="tag warn">ASSUMPTION: ...</span> / <span class="tag warn">OPEN QUESTION: ...</span>
+    -->
+  </main>
+</div>
+
+<!-- JS: use verbatim. Tested: copy buttons, mermaid copy, PNG download. -->
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  // htmlLabels:false => labels render as plain SVG <text>, which keeps the
+  // canvas untainted so the PNG download (toBlob) works.
+  mermaid.initialize({ startOnLoad: false, theme: "dark", themeVariables: { darkMode: true }, flowchart: { htmlLabels: false } });
+  await mermaid.run({ querySelector: ".mermaid" });
+  colorDecisionEdges();
+  colorNodeOutlines();
+
+  // lighten a #rrggbb hex color toward white by factor f (0..1)
+  function lighten(hex, f) {
+    const n = parseInt(hex.slice(1), 16);
+    const c = v => Math.round(v + (255 - v) * f);
+    return `rgb(${c(n >> 16)}, ${c(n >> 8 & 255)}, ${c(n & 255)})`;
+  }
+
+  // ---- Color yes/no decision edges in flowcharts (green = yes, red = no) ----
+  function colorDecisionEdges() {
+    const cs = getComputedStyle(document.documentElement);
+    const yes = cs.getPropertyValue("--green").trim() || "#3fb950";
+    const no = cs.getPropertyValue("--red").trim() || "#c0392b";
+    document.querySelectorAll(".mermaid").forEach((container, ci) => {
+      const labels = container.querySelectorAll(".edgeLabel");
+      const paths = container.querySelectorAll(".edgePaths path");
+      labels.forEach((lab, i) => {
+        const t = lab.textContent.trim().toLowerCase();
+        const color = t === "yes" ? yes : t === "no" ? no : null;
+        if (!color) return;
+        // dark reds are hard to read on the label background: make the label
+        // background transparent and lighten dark label text for readability
+        const textColor = t === "no" ? lighten(color, 0.45) : color;
+        lab.querySelectorAll("text, tspan").forEach(n => n.style.fill = textColor);
+        lab.querySelectorAll("rect, polygon").forEach(n => { n.style.fill = "transparent"; n.style.stroke = "none"; });
+        const path = paths[i];
+        if (!path) return;
+        path.style.stroke = color;
+        // clone the shared arrowhead marker so its color matches the edge
+        const m = (path.getAttribute("marker-end") || "").match(/url\("#?([^")]+)"\)/);
+        const orig = m && (container.querySelector(`#${CSS.escape(m[1])}`) || document.getElementById(m[1]));
+        if (orig) {
+          const clone = orig.cloneNode(true);
+          clone.id = `${m[1]}-${t}-${ci}-${i}`;
+          clone.querySelectorAll("path").forEach(p => { p.style.fill = color; p.style.stroke = color; });
+          orig.parentNode.appendChild(clone);
+          path.setAttribute("marker-end", `url(#${clone.id})`);
+        }
+      });
+    });
+  }
+
+  // ---- Color node outlines by flowchart node type ----
+  // decision {..} = amber, action [..] = cyan, start stadium = green (no
+  // incoming edges), end stadium = red (no outgoing edges).
+  // In use-case-style diagrams (no decision nodes): actors ([..]) = blue,
+  // use cases (..) = orange.
+  function colorNodeOutlines() {
+    const cs = getComputedStyle(document.documentElement);
+    const green = cs.getPropertyValue("--green").trim() || "#3fb950";
+    const red = cs.getPropertyValue("--red").trim() || "#c0392b";
+    const amber = cs.getPropertyValue("--amber").trim() || "#d29922";
+    const accent = cs.getPropertyValue("--accent").trim() || "#58a6ff";
+    const cyan = "#35d0d6";
+    const blue = "#58a6ff";
+    const orange = "#ff8c1a";
+    document.querySelectorAll(".diagram").forEach(dg => {
+      const srcEl = dg.querySelector(".mm-src");
+      const svg = dg.querySelector(".mermaid svg");
+      if (!srcEl || !svg) return;
+      // classify nodes by their declaration syntax in the mermaid source
+      const decl = {};
+      srcEl.textContent.split("\n").forEach(line => {
+        let m;
+        if ((m = line.match(/([A-Za-z0-9_]+)\s*\(\s*\[/))) decl[m[1]] = decl[m[1]] || "stadium";
+        else if ((m = line.match(/([A-Za-z0-9_]+)\s*\(/))) decl[m[1]] = decl[m[1]] || "rounded";
+        else if ((m = line.match(/([A-Za-z0-9_]+)\s*\{/))) decl[m[1]] = decl[m[1]] || "decision";
+        else if ((m = line.match(/([A-Za-z0-9_]+)\s*\[/))) decl[m[1]] = decl[m[1]] || "action";
+      });
+      const hasDecision = Object.values(decl).includes("decision");
+      const incoming = {}, outgoing = {};
+      const edgeRe = /([A-Za-z0-9_]+)\s*(?:-{2,}[^>\n]*?>|-\.[^>\n]*?\.->|={2,}>)\s*(?:\|[^|\n]*\|)?\s*([A-Za-z0-9_]+)/g;
+      let m;
+      while ((m = edgeRe.exec(srcEl.textContent))) {
+        outgoing[m[1]] = (outgoing[m[1]] || 0) + 1;
+        incoming[m[2]] = (incoming[m[2]] || 0) + 1;
+      }
+      svg.querySelectorAll(".node").forEach(g => {
+        const id = g.getAttribute("data-id");
+        const type = decl[id];
+        let color;
+        if (type === "decision") {
+          color = amber;
+        } else if (type === "stadium") {
+          color = !hasDecision ? blue                                   // actor in use-case diagram
+                : (incoming[id] || 0) === 0 ? green                     // start node
+                : (outgoing[id] || 0) === 0 ? red : green;              // end node
+        } else if (type === "rounded") {
+          color = hasDecision ? cyan : orange;                          // use case in use-case diagram
+        } else {
+          color = cyan;                                                 // plain action rect
+        }
+        if (hasDecision) color = "#6e767d";  // flowcharts: neutral dark-gray outlines, still visible on card bg
+        g.querySelectorAll("rect, polygon, circle, ellipse").forEach(s => {
+          s.style.stroke = color;
+          s.style.strokeWidth = "2px";
+        });
+      });
+    });
+  }
+
+  // ---- Copy buttons for code blocks ----
+  document.querySelectorAll(".copy-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const pre = btn.parentElement.querySelector("pre");
+      await navigator.clipboard.writeText(pre.textContent);
+      flash(btn, "✓ Copied!");
+    });
+  });
+
+  // ---- Copy mermaid source ----
+  document.querySelectorAll(".mm-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      // textContent, not innerText: innerText is "" inside a closed <details>
+      const src = btn.closest(".diagram").querySelector(".mm-src").textContent;
+      await navigator.clipboard.writeText(src);
+      flash(btn, "✓ Copied!");
+    });
+  });
+
+  // ---- Copy buttons for collapsible estimate rows ----
+  // hoist the copy buttons out of the closed <details> into the table row,
+  // so they are reachable without expanding the row first
+  document.querySelectorAll("td .jira > .btnbar").forEach(bar => {
+    const d = bar.closest("details");
+    d.parentNode.insertBefore(bar, d);
+  });
+  document.querySelectorAll(".jtitle-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const title = btn.closest("td").querySelector("summary").textContent.trim();
+      await navigator.clipboard.writeText(title);
+      flash(btn, "✓ Copied!");
+    });
+  });
+  document.querySelectorAll(".jdesc-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const td = btn.closest("td");
+      const title = td.querySelector("summary").textContent.trim();
+      const body = [...td.querySelectorAll(".jira p")]
+        .map(p => p.textContent.trim()).join("\n\n");
+      await navigator.clipboard.writeText(body);
+      flash(btn, "✓ Copied!");
+    });
+  });
+
+  // ---- Download rendered diagram as PNG ----
+  document.querySelectorAll(".dl-btn").forEach((btn, i) => {
+    btn.addEventListener("click", () => {
+      const svg = btn.closest(".diagram").querySelector(".mermaid svg");
+      if (!svg) return flash(btn, "not rendered yet");
+      // Mermaid sets width="100%" — clone the SVG and pin it to its viewBox
+      // size, otherwise the exported image has no intrinsic size and clips.
+      const clone = svg.cloneNode(true);
+      const vb = svg.viewBox.baseVal;
+      const pad = 16;
+      clone.setAttribute("width", vb.width + pad * 2);
+      clone.setAttribute("height", vb.height + pad * 2);
+      clone.setAttribute("viewBox", `${vb.x - pad} ${vb.y - pad} ${vb.width + pad * 2} ${vb.height + pad * 2}`);
+      const xml = new XMLSerializer().serializeToString(clone);
+      const svgUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
+      const img = new Image();
+      img.onload = () => {
+        const scale = 2;
+        const canvas = document.createElement("canvas");
+        canvas.width = (vb.width + pad * 2) * scale;
+        canvas.height = (vb.height + pad * 2) * scale;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#161b22";               // match page dark background
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(blob => {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = `diagram-${i + 1}.png`;
+          a.click();
+          flash(btn, "✓ Saved!");
+        });
+      };
+      img.src = svgUrl;
+    });
+  });
+
+  function flash(btn, text) {
+    const old = btn.innerText;
+    btn.innerText = text;
+    btn.classList.add("ok");
+    setTimeout(() => { btn.innerText = old; btn.classList.remove("ok"); }, 2000);
+  }
+</script>
+</body>
+</html>
